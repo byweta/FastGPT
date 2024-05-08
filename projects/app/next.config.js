@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+const { default: DevServer } = require('next/dist/server/dev/next-dev-server');
 const { i18n } = require('./next-i18next.config');
 const path = require('path');
 
@@ -7,6 +8,14 @@ const nextConfig = {
   output: 'standalone',
   reactStrictMode: process.env.NODE_ENV === 'development' ? false : true,
   compress: true,
+  devServer: {
+    host: '0.0.0.0',
+    port: 3000
+  },
+  trailingSlash: true,
+  eslint: {
+    ignoreDuringBuilds: true
+  },
   webpack(config, { isServer }) {
     if (!isServer) {
       config.resolve = {

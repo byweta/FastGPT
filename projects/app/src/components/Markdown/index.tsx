@@ -5,6 +5,7 @@ import RemarkMath from 'remark-math';
 import RemarkBreaks from 'remark-breaks';
 import RehypeKatex from 'rehype-katex';
 import RemarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 
 import styles from './index.module.scss';
 import dynamic from 'next/dynamic';
@@ -34,6 +35,13 @@ export enum CodeClassName {
   files = 'files'
 }
 
+interface Props {
+  href: string;
+  target: string;
+  children: string[];
+  node: object;
+}
+
 const Markdown = ({
   source = '',
   showAnimation = false
@@ -41,13 +49,43 @@ const Markdown = ({
   source?: string;
   showAnimation?: boolean;
 }) => {
+  // 自定义链接渲染器
+  const CustomLink = (props: Props) => {
+    return (
+      <a
+        href={props.href}
+        onClick={(event) => {
+          // 阻止默认的链接行为
+          event.preventDefault();
+          // 记录点击事件
+          // console.log('链接被点击:', props.href);
+          console.log('=== ===>: ', props);
+          // 你可以在这里添加其他你想要的逻辑，比如打开新窗口或者进行路由跳转
+          const hrefStr = props.href;
+          if (hrefStr.indexOf('http') === 0) {
+            window.open(props.href, '_blank');
+          } else {
+            const message = {
+              identifier: 'fastgpt', // 消息唯一标识
+              routeUrl: hrefStr // 消息跳转链接（对应集成系统的路由）
+            };
+            console.log('=== ===>: ', message);
+            window.parent.postMessage(message, '*');
+          }
+        }}
+      >
+        {props.children}
+      </a>
+    );
+  };
+
   const components = useMemo<any>(
     () => ({
       img: Image,
       pre: 'div',
       p: (pProps: any) => <p {...pProps} dir="auto" />,
       code: Code,
-      a: A
+      a: CustomLink
     }),
     []
   );
@@ -60,12 +98,13 @@ const Markdown = ({
   return (
     <ReactMarkdown
       className={`markdown ${styles.markdown}
-      ${showAnimation ? `${formatSource ? styles.waitingAnimation : styles.animation}` : ''}
-    `}
+        ${showAnimation ? `${formatSource ? styles.waitingAnimation : styles.animation}` : ''}
+      `}
       remarkPlugins={[RemarkMath, [RemarkGfm, { singleTilde: false }], RemarkBreaks]}
-      rehypePlugins={[RehypeKatex]}
+      rehypePlugins={[rehypeRaw, RehypeKatex]}
       components={components}
-      linkTarget={'_blank'}
+      // linkTarget={'_blank'}
+      linkTarget={'_top'}
     >
       {formatSource}
     </ReactMarkdown>

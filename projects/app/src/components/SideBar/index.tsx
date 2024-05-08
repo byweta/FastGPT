@@ -1,9 +1,13 @@
 import React, { useState } from 'react';
-import { Box, Flex } from '@chakra-ui/react';
+import { Box, Flex, chakra } from '@chakra-ui/react';
 import type { BoxProps } from '@chakra-ui/react';
 import MyIcon from '@fastgpt/web/components/common/Icon';
+import Image from 'next/image';
+import chat from 'public/imgs/EYE.png';
 
 interface Props extends BoxProps {}
+
+const ChakraNextImage = chakra(Image);
 
 const SideBar = (e?: Props) => {
   const {
@@ -50,12 +54,16 @@ const SideBar = (e?: Props) => {
             })}
         onClick={() => setFoldSideBar(!foldSideBar)}
       >
-        <MyIcon
-          name={'common/backLight'}
-          transform={foldSideBar ? 'rotate(180deg)' : ''}
-          w={'14px'}
-          color={'white'}
-        />
+        {
+          <MyIcon
+            name={'common/backLight'}
+            transform={foldSideBar ? 'rotate(180deg)' : ''}
+            w={'14px'}
+            color={'white'}
+          />
+        }
+        {/* <img src="/imgs/CHAT.png" /> */}
+        {/* <ChakraNextImage src={chat} alt="an img" layout="fill" objectFit="cover"></ChakraNextImage> */}
       </Flex>
       <Box position={'relative'} h={'100%'} overflow={foldSideBar ? 'hidden' : 'visible'}>
         {children}

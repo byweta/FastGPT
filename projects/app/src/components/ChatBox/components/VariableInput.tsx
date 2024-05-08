@@ -31,7 +31,7 @@ const VariableInput = ({
   return (
     <Box py={3}>
       {/* avatar */}
-      <ChatAvatar src={appAvatar} type={'AI'} />
+      {<ChatAvatar src={appAvatar} type={'Human'} />}
       {/* message */}
       <Box textAlign={'left'}>
         <Card

@@ -9,7 +9,8 @@ import {
   AccordionButton,
   AccordionPanel,
   AccordionIcon,
-  Image
+  Image,
+  chakra
 } from '@chakra-ui/react';
 import React, { useMemo } from 'react';
 import ChatController, { type ChatControllerProps } from './ChatController';
@@ -26,6 +27,9 @@ import {
 } from '@fastgpt/global/core/chat/constants';
 import FilesBlock from './FilesBox';
 import { useChatProviderStore } from '../Provider';
+import NImage from 'next/image';
+import chatpng from 'public/imgs/EYE.png';
+const ChakraNextImage = chakra(NImage);
 
 const colorMap = {
   [ChatStatusEnum.loading]: {
@@ -214,8 +218,17 @@ ${toolResponse}`}
             <ChatController {...chatControllerProps} isLastChild={isLastChild} />
           </Box>
         )}
-        <ChatAvatar src={avatar} type={type} />
+        {type === 'Human' && <ChatAvatar src={avatar} type={type} />}
 
+        {/* wangcx 添加系统交互头像，历史中为AI机器人wink状态 */}
+        {type === 'AI' && (
+          <ChakraNextImage
+            src={chatpng}
+            alt="an img"
+            objectFit="cover"
+            style={{ width: 40, height: 40 }}
+          ></ChakraNextImage>
+        )}
         {!!chatStatusMap && statusBoxData && isLastChild && (
           <Flex alignItems={'center'} px={3} py={'1.5px'} borderRadius="md" bg={chatStatusMap.bg}>
             <Box
