@@ -30,6 +30,7 @@ import { useChatProviderStore } from '../Provider';
 import NImage from 'next/image';
 import chatpng from 'public/imgs/EYE.png';
 const ChakraNextImage = chakra(NImage);
+import Avatar from '@/components/Avatar';
 
 const colorMap = {
   [ChatStatusEnum.loading]: {
@@ -161,7 +162,7 @@ ${JSON.stringify(questionGuides)}`;
                               color: 'primary.600'
                             }}
                           >
-                            <Image src={tool.toolAvatar} alt={''} w={'14px'} mr={2} />
+                            <Avatar src={tool.toolAvatar} borderRadius={'md'} w={'14px'} mr={2} />
                             <Box mr={1}>{tool.toolName}</Box>
                             {isChatting && !tool.response && (
                               <MyIcon name={'common/loading'} w={'14px'} />

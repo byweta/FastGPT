@@ -32,7 +32,7 @@ import type { ChatHistoryItemType } from '@fastgpt/global/core/chat/type.d';
 import { getChatTitleFromChatMessage } from '@fastgpt/global/core/chat/utils';
 import { ChatStatusEnum } from '@fastgpt/global/core/chat/constants';
 import { getErrText } from '@fastgpt/global/common/error/utils';
-import MyBox from '@/components/common/MyBox';
+import MyBox from '@fastgpt/web/components/common/MyBox';
 import SliderApps from './components/SliderApps';
 import { GPTMessages2Chats } from '@fastgpt/global/core/chat/adapt';
 
@@ -137,7 +137,18 @@ const OutLink = () => {
 
       return { responseText, responseData, isNewChat: forbidRefresh.current };
     },
-    [appId, teamToken, chatId, histories, pushHistory, router, setChatData, teamId, updateHistory]
+    [
+      chatId,
+      customVariables,
+      appId,
+      teamId,
+      teamToken,
+      setChatData,
+      pushHistory,
+      router,
+      histories,
+      updateHistory
+    ]
   );
 
   /* replace router query to last chat */
@@ -358,7 +369,7 @@ const OutLink = () => {
                 ref={ChatBoxRef}
                 appAvatar={chatData.app.avatar}
                 userAvatar={chatData.userAvatar}
-                userGuideModule={chatData.app?.userGuideModule}
+                chatConfig={chatData.app?.chatConfig}
                 showFileSelector={checkChatSupportSelectFileByChatModels(chatData.app.chatModels)}
                 feedbackType={'user'}
                 onUpdateVariable={(e) => {}}
@@ -382,7 +393,7 @@ const OutLink = () => {
 export async function getServerSideProps(context: any) {
   return {
     props: {
-      ...(await serviceSideProps(context))
+      ...(await serviceSideProps(context, ['file']))
     }
   };
 }

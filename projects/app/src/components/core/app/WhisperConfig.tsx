@@ -6,14 +6,15 @@ import { useTranslation } from 'next-i18next';
 import type { AppWhisperConfigType } from '@fastgpt/global/core/app/type.d';
 import MyModal from '@fastgpt/web/components/common/MyModal';
 import QuestionTip from '@fastgpt/web/components/common/MyTooltip/QuestionTip';
+import { defaultWhisperConfig } from '@fastgpt/global/core/app/constants';
 
 const WhisperConfig = ({
   isOpenAudio,
-  value,
+  value = defaultWhisperConfig,
   onChange
 }: {
   isOpenAudio: boolean;
-  value: AppWhisperConfigType;
+  value?: AppWhisperConfigType;
   onChange: (e: AppWhisperConfigType) => void;
 }) => {
   const { t } = useTranslation();
@@ -32,14 +33,13 @@ const WhisperConfig = ({
   return (
     <Flex alignItems={'center'}>
       <MyIcon name={'core/app/simpleMode/whisper'} mr={2} w={'20px'} />
-      <Box>{t('core.app.Whisper')}</Box>
+      <Box fontWeight={'medium'}>{t('core.app.Whisper')}</Box>
       <Box flex={1} />
       <MyTooltip label={t('core.app.Config whisper')}>
         <Button
           variant={'transparentBase'}
           iconSpacing={1}
           size={'sm'}
-          fontSize={'md'}
           mr={'-5px'}
           onClick={onOpen}
         >

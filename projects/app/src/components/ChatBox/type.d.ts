@@ -5,14 +5,15 @@ import {
   ChatSiteItemType,
   ToolModuleResponseItemType
 } from '@fastgpt/global/core/chat/type';
-import { SseResponseEventEnum } from '@fastgpt/global/core/module/runtime/constants';
+import { SseResponseEventEnum } from '@fastgpt/global/core/workflow/runtime/constants';
 
 export type generatingMessageProps = {
-  event: `${SseResponseEventEnum}`;
+  event: SseResponseEventEnum;
   text?: string;
   name?: string;
   status?: 'running' | 'finish';
   tool?: ToolModuleResponseItemType;
+  variables?: Record<string, any>;
 };
 
 export type UserInputFileItemType = {

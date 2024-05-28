@@ -28,7 +28,15 @@ export type SelectProps = ButtonProps & {
 };
 
 const MySelect = (
-  { placeholder, value, width = '100%', list, onchange, isLoading = false, ...props }: SelectProps,
+  {
+    placeholder,
+    value,
+    width = '100%',
+    list = [],
+    onchange,
+    isLoading = false,
+    ...props
+  }: SelectProps,
   selectRef: any
 ) => {
   const ref = useRef<HTMLButtonElement>(null);
@@ -90,6 +98,7 @@ const MySelect = (
         </MenuButton>
 
         <MenuList
+          className={props.className}
           minW={(() => {
             const w = ref.current?.clientWidth;
             if (w) {

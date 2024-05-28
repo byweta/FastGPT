@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { Box, useColorMode, Flex } from '@chakra-ui/react';
+import { Box, Flex } from '@chakra-ui/react';
 import { useRouter } from 'next/router';
 import { useLoading } from '@fastgpt/web/hooks/useLoading';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
@@ -10,12 +10,22 @@ import { getUnreadCount } from '@/web/support/user/inform/api';
 import dynamic from 'next/dynamic';
 
 import Auth from './auth';
-import Navbar from './navbar';
-import NavbarPhone from './navbarPhone';
-const UpdateInviteModal = dynamic(() => import('@/components/support/user/team/UpdateInviteModal'));
-const NotSufficientModal = dynamic(() => import('@/components/support/wallet/NotSufficientModal'));
-const SystemMsgModal = dynamic(() => import('@/components/support/user/inform/SystemMsgModal'));
-const ImportantInform = dynamic(() => import('@/components/support/user/inform/ImportantInform'));
+
+const Navbar = dynamic(() => import('./navbar'));
+const NavbarPhone = dynamic(() => import('./navbarPhone'));
+const UpdateInviteModal = dynamic(
+  () => import('@/components/support/user/team/UpdateInviteModal'),
+  { ssr: false }
+);
+const NotSufficientModal = dynamic(() => import('@/components/support/wallet/NotSufficientModal'), {
+  ssr: false
+});
+const SystemMsgModal = dynamic(() => import('@/components/support/user/inform/SystemMsgModal'), {
+  ssr: false
+});
+const ImportantInform = dynamic(() => import('@/components/support/user/inform/ImportantInform'), {
+  ssr: false
+});
 
 const pcUnShowLayoutRoute: Record<string, boolean> = {
   '/': true,
@@ -42,7 +52,6 @@ const phoneUnShowLayoutRoute: Record<string, boolean> = {
 
 const Layout = ({ children }: { children: JSX.Element }) => {
   const router = useRouter();
-  const { colorMode, setColorMode } = useColorMode();
   const { Loading } = useLoading();
   const { loading, setScreenWidth, isPc, feConfigs, isNotSufficientModal } = useSystemStore();
   const { userInfo } = useUserStore();
@@ -52,12 +61,7 @@ const Layout = ({ children }: { children: JSX.Element }) => {
     [router.pathname, router.query]
   );
 
-  useEffect(() => {
-    if (colorMode === 'dark' && router.pathname !== '/chat') {
-      setColorMode('light');
-    }
-  }, [colorMode, router.pathname, setColorMode]);
-
+  // listen screen width
   useEffect(() => {
     const resize = throttle(() => {
       setScreenWidth(document.documentElement.clientWidth);
@@ -118,14 +122,18 @@ const Layout = ({ children }: { children: JSX.Element }) => {
             </Box>
           </>
         )}
-
-        {!!userInfo && <UpdateInviteModal />}
-        {isNotSufficientModal && !isHideNavbar && <NotSufficientModal />}
-        {!!userInfo && <SystemMsgModal />}
-        {!!userInfo && importantInforms.length > 0 && (
-          <ImportantInform informs={importantInforms} refetch={refetchUnRead} />
-        )}
       </Box>
+      {feConfigs?.isPlus && (
+        <>
+          {!!userInfo && <UpdateInviteModal />}
+          {isNotSufficientModal && !isHideNavbar && <NotSufficientModal />}
+          {!!userInfo && <SystemMsgModal />}
+          {!!userInfo && importantInforms.length > 0 && (
+            <ImportantInform informs={importantInforms} refetch={refetchUnRead} />
+          )}
+        </>
+      )}
+
       <Loading loading={loading} zIndex={999999} />
     </>
   );

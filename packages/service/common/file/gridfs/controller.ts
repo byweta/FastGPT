@@ -6,9 +6,8 @@ import { DatasetFileSchema } from '@fastgpt/global/core/dataset/type';
 import { MongoFileSchema } from './schema';
 import { detectFileEncoding } from '@fastgpt/global/common/file/tools';
 import { CommonErrEnum } from '@fastgpt/global/common/error/code/common';
-import { ReadFileByBufferParams } from '../read/type';
-import { MongoRwaTextBuffer } from '../../buffer/rawText/schema';
-import { readFileRawContent } from '../read/utils';
+import { MongoRawTextBuffer } from '../../buffer/rawText/schema';
+import { readRawContentByFileBuffer } from '../read/utils';
 import { PassThrough } from 'stream';
 
 export function getGFSCollection(bucket: `${BucketNameEnum}`) {
@@ -152,18 +151,18 @@ export const readFileContentFromMongo = async ({
   teamId,
   bucketName,
   fileId,
-  csvFormat = false
+  isQAImport = false
 }: {
   teamId: string;
   bucketName: `${BucketNameEnum}`;
   fileId: string;
-  csvFormat?: boolean;
+  isQAImport?: boolean;
 }): Promise<{
   rawText: string;
   filename: string;
 }> => {
   // read buffer
-  const fileBuffer = await MongoRwaTextBuffer.findOne({ sourceId: fileId }).lean();
+  const fileBuffer = await MongoRawTextBuffer.findOne({ sourceId: fileId }).lean();
   if (fileBuffer) {
     return {
       rawText: fileBuffer.rawText,
@@ -197,23 +196,19 @@ export const readFileContentFromMongo = async ({
     });
   })();
 
-  const params: ReadFileByBufferParams = {
+  const { rawText } = await readRawContentByFileBuffer({
+    extension,
+    isQAImport,
     teamId,
     buffer: fileBuffers,
     encoding,
     metadata: {
       relatedId: fileId
     }
-  };
-
-  const { rawText } = await readFileRawContent({
-    extension,
-    csvFormat,
-    params
   });
 
   if (rawText.trim()) {
-    MongoRwaTextBuffer.create({
+    MongoRawTextBuffer.create({
       sourceId: fileId,
       rawText,
       metadata: {

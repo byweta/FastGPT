@@ -1,22 +1,23 @@
 import MyIcon from '@fastgpt/web/components/common/Icon';
 import MyTooltip from '@/components/MyTooltip';
-import { QuestionOutlineIcon } from '@chakra-ui/icons';
 import { Box, Button, Flex, ModalBody, useDisclosure, Image } from '@chakra-ui/react';
 import React, { useCallback, useMemo } from 'react';
 import { useTranslation } from 'next-i18next';
-import { TTSTypeEnum } from '@/constants/app';
+import { TTSTypeEnum } from '@/web/core/app/constants';
 import type { AppTTSConfigType } from '@fastgpt/global/core/app/type.d';
 import { useAudioPlay } from '@/web/common/utils/voice';
 import { useSystemStore } from '@/web/common/system/useSystemStore';
 import MyModal from '@fastgpt/web/components/common/MyModal';
 import MySlider from '@/components/Slider';
 import MySelect from '@fastgpt/web/components/common/MySelect';
+import { defaultTTSConfig } from '@fastgpt/global/core/app/constants';
+import ChatFunctionTip from './Tip';
 
 const TTSSelect = ({
-  value,
+  value = defaultTTSConfig,
   onChange
 }: {
-  value: AppTTSConfigType;
+  value?: AppTTSConfigType;
   onChange: (e: AppTTSConfigType) => void;
 }) => {
   const { t } = useTranslation();
@@ -80,17 +81,14 @@ const TTSSelect = ({
   return (
     <Flex alignItems={'center'}>
       <MyIcon name={'core/app/simpleMode/tts'} mr={2} w={'20px'} />
-      <Box>{t('core.app.TTS')}</Box>
-      <MyTooltip label={t('core.app.TTS Tip')} forceShow>
-        <QuestionOutlineIcon display={['none', 'inline']} ml={1} />
-      </MyTooltip>
+      <Box fontWeight={'medium'}>{t('core.app.TTS')}</Box>
+      <ChatFunctionTip type={'tts'} />
       <Box flex={1} />
       <MyTooltip label={t('core.app.Select TTS')}>
         <Button
           variant={'transparentBase'}
           iconSpacing={1}
           size={'sm'}
-          fontSize={'md'}
           mr={'-5px'}
           onClick={onOpen}
         >

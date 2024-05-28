@@ -7,28 +7,55 @@ import { MongoPlugin } from '@fastgpt/service/core/plugin/schema';
 import { mongoSessionRun } from '@fastgpt/service/common/mongo/sessionRun';
 import { ClientSession } from '@fastgpt/service/common/mongo';
 import { httpApiSchema2Plugins } from '@fastgpt/global/core/plugin/httpPlugin/utils';
+import { isEqual } from 'lodash';
+import { nanoid } from 'nanoid';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse<any>) {
   try {
     await connectToDatabase();
     const body = req.body as UpdatePluginParams;
 
-    const { id, ...props } = body;
+    const { id, modules, edges, ...props } = body;
 
-    const { teamId, tmbId } = await authPluginCrud({ req, authToken: true, id, per: 'owner' });
+    const { teamId, tmbId } = await authPluginCrud({
+      req,
+      authToken: true,
+      pluginId: id,
+      per: 'owner'
+    });
 
-    const updateData = {
+    const originPlugin = await MongoPlugin.findById(id);
+
+    let updateData = {
       name: props.name,
       intro: props.intro,
       avatar: props.avatar,
       parentId: props.parentId,
-      ...(props.modules &&
-        props.modules.length > 0 && {
-          modules: props.modules
-        }),
-      metadata: props.metadata
+      version: 'v2',
+      ...(modules?.length && {
+        modules: modules
+      }),
+      ...(edges?.length && { edges }),
+      metadata: props.metadata,
+      nodeVersion: originPlugin?.nodeVersion
     };
 
+    const isNodeVersionEqual =
+      isEqual(
+        originPlugin?.modules.map((module) => {
+          return { ...module, position: undefined };
+        }),
+        updateData.modules?.map((module) => {
+          return { ...module, position: undefined };
+        })
+      ) && isEqual(originPlugin?.edges, updateData.edges);
+
+    if (!isNodeVersionEqual) {
+      updateData = {
+        ...updateData,
+        nodeVersion: nanoid(6)
+      };
+    }
     if (props.metadata?.apiSchemaStr) {
       await mongoSessionRun(async (session) => {
         // update children
@@ -98,7 +125,8 @@ const updateHttpChildrenPlugin = async ({
               pluginUid: plugin.name
             },
             teamId,
-            tmbId
+            tmbId,
+            version: 'v2'
           }
         ],
         {
@@ -111,7 +139,14 @@ const updateHttpChildrenPlugin = async ({
   for await (const plugin of schemaPlugins) {
     const dbPlugin = dbPlugins.find((p) => plugin.name === p.metadata?.pluginUid);
     if (dbPlugin) {
-      await MongoPlugin.findByIdAndUpdate(dbPlugin._id, plugin, { session });
+      await MongoPlugin.findByIdAndUpdate(
+        dbPlugin._id,
+        {
+          ...plugin,
+          version: 'v2'
+        },
+        { session }
+      );
     }
   }
 };
